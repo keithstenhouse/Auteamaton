@@ -1,0 +1,31 @@
+extends layout
+
+block content
+    h1 Add Captain
+    form(method='POST', action='/captains/add')
+        .form-group
+            label Name:
+            input.form-control(name='name' type='text' autofocus)
+        .form-group
+            label Username:
+            input.form-control(name='username' type='text')
+        .form-group
+            label Mobile:
+            input.form-control(name='mobile' type='tel')
+        .form-group
+            label Captain of Which Team:
+            select.form-control(name='captainof')
+                each team, index in teams
+                    if index == 0
+                        option.form-control(value="" disabled selected) Please select a team
+                    option.form-control(value=team.name) #{team.name}
+                else
+                    option.form-control(value="" disabled selected) Please add a team in the Teams section
+        .form-group
+            label Password:
+            input.form-control(name='password' type='password')
+        .form-group
+            label Confirm Password:
+            input.form-control(name='password2' type='password')
+        a.btn.btn-secondary.mr-1(href='/captains') Back
+        input.btn.btn-primary(value='Submit' type='submit')

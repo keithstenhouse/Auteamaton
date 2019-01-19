@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    h1 Send SMS Message
+    br
+    form(method='POST', action='/')
+        .form-group
+            label Number:
+            input#number.form-control(name='number', type='tel', placeholder="Enter Phone Number...")
+        .form-group
+            label Message:
+            input#msg.form-control(name='msg', type='text', placeholder="Enter Text Message...")
+        input#button.btn.btn-primary(value='Send Message', type='submit')

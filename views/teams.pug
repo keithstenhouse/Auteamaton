@@ -1,0 +1,19 @@
+extends layout
+
+block content
+    h1 Teams
+    a.btn.btn-secondary.mb-3.mr-1(href='/') Back
+    a.btn.btn-primary.mb-3(href='/teams/add') Add Team
+    table.table.table-bordered
+        thead
+            tr
+                th Team
+        tbody
+            each team in teams
+                tr
+                    td= team.name
+                        a.btn.btn-danger.float-right.delete-team(href='#', data-id=team.id) Delete
+                        a.btn.btn-warning.float-right.mr-1(href='/teams/edit/'+team.id) Edit
+            else
+                tr
+                    td Please add a team

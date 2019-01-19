@@ -1,0 +1,22 @@
+extends layout
+
+block content
+    h1 Add Player
+    form(method='POST', action='/players/add')
+        .form-group
+            label Name:
+            input.form-control(name='name' type='text' autofocus)
+        .form-group
+            label Greeting:
+            input.form-control(name='greeting' type='text' autofocus)
+        .form-group
+            label Gender:
+            select.form-control(name='gender')
+                option.form-control(value="" disabled selected) Please select a gender
+                option.form-control(value="Male") Male
+                option.form-control(value="Female") Female
+        .form-group
+            label Mobile (Including country code: e.g "44 71234 123456"):
+            input.form-control(name='mobile' type='tel')
+        a.btn.btn-secondary.mr-1(href='/players') Back
+        input.btn.btn-primary(value='Submit' type='submit')

@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    h1 Matches
+    a.btn.btn-secondary.mb-3.mr-1(href='/') Back
+    a.btn.btn-primary.mb-3(href='/matches/add') Add Match
+    table.table.table-bordered
+        thead
+            tr
+                th Team
+                th Day
+                th Date
+                th Time
+                th Venue
+                th Opposition
+        tbody
+            each match in matches
+                tr
+                    td= match.team
+                    td= match.day
+                    td= match.date
+                    td= match.time
+                    td= match.venue
+                    td #{match.opposition}
+                        a.btn.btn-danger.float-right.delete-match(href='#', data-id=match.id) Delete
+                        a.btn.btn-warning.float-right.mr-1(href='/matches/edit/'+match.id) Edit

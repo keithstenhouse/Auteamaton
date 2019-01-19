@@ -1,0 +1,28 @@
+extends layout
+
+block content
+    h1 Edit Captain
+    form(method='POST', action='/captains/edit/'+captain.id)
+        .form-group
+            label Name:
+            input.form-control(name='name' type='text' value=captain.name autofocus)
+        .form-group
+            label Username:
+            input.form-control(name='username' type='text' value=captain.username)
+        .form-group
+            label Mobile:
+            input.form-control(name='mobile' type='tel' value=captain.mobile)
+        .form-group
+            label Captain of Which Team:
+            select.form-control(name='captainof')
+                each team, index in teams
+                    if index == 0
+                        option.form-control(value="" disabled selected) Please select a team
+                    if team.name == captain.captainof
+                        option.form-control(value=team.name selected) #{team.name}
+                    else
+                        option.form-control(value=team.name) #{team.name}
+                else
+                    option.form-control(value="" disabled selected) Please add a team in the Teams section
+        a.btn.btn-secondary.mr-1(href='/captains') Back
+        input.btn.btn-primary(value='Submit' type='submit')

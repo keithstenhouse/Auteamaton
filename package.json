@@ -1,0 +1,26 @@
+{
+  "name": "auteamaton",
+  "version": "1.0.0",
+  "description": "Automate collection of team availability via messaging services",
+  "main": "auteamaton.js",
+  "scripts": {
+    "start": "node auteamaton.js"
+  },
+  "author": "Keith Stenhouse",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "connect-flash": "^0.1.1",
+    "dateformat": "^3.0.3",
+    "express": "^4.16.4",
+    "express-messages": "^1.0.1",
+    "express-session": "^1.15.6",
+    "express-validator": "^5.3.1",
+    "mongoose": "^5.4.3",
+    "nexmo": "^2.4.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "pug": "^2.0.3"
+  }
+}

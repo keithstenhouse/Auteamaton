@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    h1 Edit Team
+    form(method='POST', action='/teams/edit/'+team.id)
+        .form-group
+            label Name:
+            input.form-control(name='name' type='text' value=team.name autofocus)
+        .form-group
+            label Gender:
+            select.form-control(name='gender' value=team.gender)
+                option.form-control(value="" disabled selected) Please select a gender
+                if team.gender == "Male"
+                    option.form-control(value="Male" selected) Male
+                    option.form-control(value="Female") Female
+                    option.form-control(value="Mixed") Mixed
+                else if team.gender == "Female"
+                    option.form-control(value="Male") Male
+                    option.form-control(value="Female" selected) Female
+                    option.form-control(value="Mixed") Mixed
+                else if team.gender == "Mixed"
+                    option.form-control(value="Male") Male
+                    option.form-control(value="Female") Female
+                    option.form-control(value="Mixed" selected) Mixed
+        a.btn.btn-secondary.mr-1(href='/teams') Back
+        input.btn.btn-primary(value='Submit' type='submit')

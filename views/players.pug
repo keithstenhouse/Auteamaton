@@ -1,0 +1,22 @@
+extends layout
+
+block content
+    h1 Club Players
+    a.btn.btn-secondary.mb-3.mr-1(href='/') Back
+    a.btn.btn-primary.mb-3(href='/players/add') Add Club Player
+    table.table.table-bordered
+        thead
+            tr
+                th Full Name
+                th Greeting
+                th Gender
+                th Mobile
+        tbody
+            each player in players
+                tr
+                    td= player.name
+                    td= player.greeting
+                    td= player.gender
+                    td #{player.mobile}
+                        a.btn.btn-danger.float-right.delete-player(href='#', data-id=player.id) Delete
+                        a.btn.btn-warning.float-right.mr-1(href='/players/edit/'+player.id) Edit

@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    h1 Add Squad Player
+    form(method='POST', action='/squadplayers/add')
+        .form-group
+            label Player:
+            select.form-control(name='player')
+                each player, index in players
+                    if index == 0
+                        option.form-control(value="" disabled selected) Please select a player
+                    option.form-control(value=player.name) #{player.name}
+                else
+                    option.form-control(value="" disabled selected) Please add a player in the Club Players section
+        a.btn.btn-secondary.mr-1(href='/squadplayers') Back
+        input.btn.btn-primary(value='Submit' type='submit')

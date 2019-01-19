@@ -1,0 +1,19 @@
+extends layout
+
+block content
+    h1 Captains
+    a.btn.btn-secondary.mb-3.mr-1(href='/') Back
+    a.btn.btn-primary.mb-3(href='/captains/add') Add Captain
+    table.table.table-bordered
+        thead
+            tr
+                th Team
+                th Captain
+        tbody
+            each captain in captains
+                if captain.captainof != 'admin'
+                    tr
+                        td= captain.captainof
+                        td #{captain.name}
+                            a.btn.btn-danger.float-right.delete-captain(href='#', data-id=captain.id) Delete
+                            a.btn.btn-warning.float-right.mr-1(href='/captains/edit/'+captain.id) Edit

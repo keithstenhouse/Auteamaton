@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    h1 #{match.team} Team Summary
+    br
+    if match.day != ""
+        h3 Next Match
+        table.table.table-bordered
+            thead
+                tr
+                    th Team
+                    th Day
+                    th Date
+                    th Time
+                    th Venue
+                    th Opposition
+            tbody
+                tr
+                    td= match.team
+                    td= match.day
+                    td= match.date
+                    td= match.time
+                    td= match.venue
+                    td= match.opposition
+    else
+        h3 No upcoming matches in the fixture list

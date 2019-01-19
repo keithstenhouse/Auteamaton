@@ -1,0 +1,17 @@
+extends layout
+
+block content
+    h1 Squad Players
+    a.btn.btn-secondary.mb-3.mr-1(href='/') Back
+    a.btn.btn-primary.mb-3(href='/squadplayers/add') Add Squad Player
+    table.table.table-bordered
+        thead
+            tr
+                th Team
+                th Player
+        tbody
+            each squadplayer in squadplayers
+                tr
+                    td= squadplayer.team
+                    td #{squadplayer.player}
+                        a.btn.btn-danger.float-right.delete-squadplayer(href='#', data-id=squadplayer.id) Delete

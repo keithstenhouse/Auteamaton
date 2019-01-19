@@ -1,0 +1,51 @@
+doctype html
+html
+    head
+        title Auteamaton
+        link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.css')
+        link(rel='stylesheet' href='/css/style.css')
+    body
+        //- Takn from the bootstrap example code and coverted to Pug via html2pug.org and then stripped back to bare bones!
+        nav.navbar.navbar-expand-md.navbar-dark.bg-dark
+            a.navbar-brand(href='/') AUTEAMATON
+            ul.navbar-nav.mr-auto
+                if admin
+                    li.nav-item
+                        a.nav-link(href='/captains') Captains
+                    li.nav-item
+                        a.nav-link(href='/teams') Teams
+                if user && !admin
+                    li.nav-item
+                        a.nav-link(href='/matches') Matches
+                    li.nav-item
+                        a.nav-link(href='/squadplayers') Squad Players
+                if user || admin
+                    li.nav-item
+                        a.nav-link(href='/players') Club Players
+                if user && !admin
+                    li.nav-item
+                        a.nav-link(href='/messaging') Messaging
+            ul.navbar-nav.navbar-right
+                if user || admin
+                    li.navbar-brand #{user.name} | #{user.captainof}
+                    li.nav-item
+                        a.nav-link(href='/users/logout') Logout
+                else
+                    li.nav-item
+                        a.nav-link(href='/users/login') Login
+        .container
+            br
+            != messages('message', locals)
+            if errors
+                each error, i in errors
+                    div(class="alert alert-danger") #{error.msg}
+            br
+            hr
+            block content
+            br
+            hr
+            footer
+                p Copyright &copy; 2019
+        script(src='/bower_components/jquery/dist/jquery.js')
+        script(src='/bower_components/bootstrap/dist/js/bootstrap.js')
+        script(src='/js/main.js')

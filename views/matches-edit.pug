@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    h1 Edit Match
+    form(method='POST', action='/matches/edit/'+match.id)
+        .form-group
+            label Date:
+            input.form-control(name='date' type='date' value=match.rawdate autofocus)
+        .form-group
+            label Time:
+            input.form-control(name='time' type='time' value=match.rawtime)
+        .form-group
+            label Venue:
+            select.form-control(name='venue')
+                option.form-control(value="" disabled selected) Please select a venue
+                if match.venue == "Home"
+                    option.form-control(value="Home" selected) Home
+                    option.form-control(value="Away") Away
+                else
+                    option.form-control(value="Home") Home
+                    option.form-control(value="Away" selected) Away
+        .form-group
+            label Opposition:
+            input.form-control(name='opposition' type='text' value=match.opposition)
+        a.btn.btn-secondary.mr-1(href='/matches') Back
+        input.btn.btn-primary(value='Submit' type='submit')
