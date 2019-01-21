@@ -33,9 +33,6 @@ const matchesSchema = mongoose.Schema({
     opposition: {
         type: String,
         required: true
-    },
-    squadalerted: {
-        type: Boolean
     }
 });
 

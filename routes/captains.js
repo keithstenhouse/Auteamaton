@@ -51,18 +51,16 @@ captains.get('/add', ensureAuthenticated, (req, res) => {
 // Captains Process
 captains.post('/add', (req, res) => {
     if (req.user.captainof == 'admin') {
-        const name = req.body.name;
-        const username = req.body.username;
-        const mobile = req.body.mobile;
-        const captainof = req.body.captainof;
-        const password = req.body.password;
+        req.checkBody('name').trim().notEmpty().withMessage('Name is required');
+        req.checkBody('username').trim().notEmpty().withMessage('Username is required');
+        req.checkBody('mobile').trim().notEmpty().withMessage('Mobile is required');
+        req.checkBody('captainof').trim().notEmpty().withMessage('Captain of Which Team is required');
+        req.checkBody('password').trim().notEmpty().withMessage('Password is required');
+        req.checkBody('password2').trim().equals(req.body.password).withMessage('Passwords much match');
 
-        req.checkBody('name', 'Name is required').notEmpty();
-        req.checkBody('username', 'Username is required').notEmpty();
-        req.checkBody('mobile', 'Mobile is required').notEmpty();
-        req.checkBody('captainof', 'Captain of Which Team is required').notEmpty();
-        req.checkBody('password', 'Password is required').notEmpty();
-        req.checkBody('password2', 'Passwords do not match').equals(password);
+        regex = /[^0123456789]/g
+        req.body.mobile = req.body.mobile.replace(regex, '');
+        req.checkBody('mobile').matches(/^447[0-9]+$/).withMessage('Must be a mobile phone number starting "447"');
 
         let errors = req.validationErrors();
 
@@ -76,11 +74,11 @@ captains.post('/add', (req, res) => {
             });
         } else {
             let newUser = new usersModel({
-                name: name,
-                username: username,
-                mobile: mobile,
-                captainof: captainof,
-                password: password
+                name: req.body.name,
+                username: req.body.username,
+                mobile: req.body.mobile,
+                captainof: req.body.captainof,
+                password: req.body.password
             });
 
             bcrypt.genSalt(10, (err, salt) => {
@@ -94,10 +92,10 @@ captains.post('/add', (req, res) => {
 
                     newUser.save(err => {
                         if (err) {
-                            req.flash('danger', 'The username "' + username + '" is already taken, please try another');
+                            req.flash('danger', 'The username "' + req.body.username + '" is already taken, please try another');
                             res.redirect('/captains/add');
                         } else {
-                            req.flash('success', newUser.username + ' has now been registered and can log in');
+                            req.flash('success', req.body.username + ' has now been registered and can log in');
                             res.redirect('/captains');
                         }
                     });
@@ -142,29 +140,34 @@ captains.get('/edit/:id', ensureAuthenticated, (req, res) => {
 captains.post('/edit/:id', ensureAuthenticated, (req, res) => {
     if (req.user.captainof == 'admin') {
         // Form validation using expess-validator
-        const name = req.body.name;
-        const username = req.body.username;
-        const mobile = req.body.mobile;
-        const captainof = req.body.captainof;
+        req.checkBody('name').trim().notEmpty().withMessage('Name is required');
+        req.checkBody('username').trim().notEmpty().withMessage('Username is required');
+        req.checkBody('mobile').trim().notEmpty().withMessage('Mobile is required');
+        req.checkBody('captainof').trim().notEmpty().withMessage('Captain of Which Team is required');
 
-        req.checkBody('name', 'Name is required').notEmpty();
-        req.checkBody('username', 'Username is required').notEmpty();
-        req.checkBody('mobile', 'Mobile is required').notEmpty();
-        req.checkBody('captainof', 'Captain of Which Team is required').notEmpty();
+        regex = /[^0123456789]/g
+        req.body.mobile = req.body.mobile.replace(regex, '');
+        req.checkBody('mobile').matches(/^447[0-9]+$/).withMessage('Must be a mobile phone number starting "447"');
 
         // Get Validation Errors
         let errors = req.validationErrors();
 
         if (errors) {
-            let query = {_id: req.params.id};
-
-            usersModel.findOne(query, (err, user) => {
+            teamsModel.find({}, (err, teams) => {
                 if (err) {
-                    req.flash('danger', 'Failed to find the captain to edit');
-                    console.log(err);
-                } else {
-                    res.render('captains-edit', {errors: errors, team: team, captain: user});
+                    throw err;
                 }
+
+                let query = {_id: req.params.id};
+
+                usersModel.findOne(query, (err, user) => {
+                    if (err) {
+                        req.flash('danger', 'Failed to find the captain to edit');
+                        console.log(err);
+                    } else {
+                        res.render('captains-edit', {errors: errors, teams: teams, captain: user});
+                    }
+                });
             });
         } else {
             let query = {_id: req.params.id};
@@ -174,10 +177,10 @@ captains.post('/edit/:id', ensureAuthenticated, (req, res) => {
                     req.flash('danger', 'Failed to find the captain to edit');
                     console.log(err);
                 } else {
-                    user.name = name;
-                    user.username = username;
-                    user.mobile = mobile;
-                    user.captainof = captainof;
+                    user.name = req.body.name;
+                    user.username = req.body.username;
+                    user.mobile = req.body.mobile;
+                    user.captainof = req.body.captainof;
         
                     usersModel.updateOne(query, user, err => {
                         if (err) {

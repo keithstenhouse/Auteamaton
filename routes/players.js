@@ -102,7 +102,7 @@ players.post('/edit/:id', ensureAuthenticated, (req, res) => {
                 req.flash('danger', 'Failed to find the player to edit');
                 console.log(err);
             } else {
-                res.render('teams-edit', {player: player, errors: errors});
+                res.render('players-edit', {player: player, errors: errors});
             }
         });
     } else {
