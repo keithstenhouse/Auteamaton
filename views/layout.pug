@@ -2,6 +2,7 @@ doctype html
 html
     head
         title Auteamaton
+        link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous")
         link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.css')
         link(rel='stylesheet' href='/css/style.css')
     body
@@ -29,10 +30,12 @@ html
                 if user || admin
                     li.navbar-brand #{user.name} | #{user.captainof}
                     li.nav-item
-                        a.nav-link(href='/users/logout') Logout
+                        a.nav-link(href='/users/logout') Logout 
+                            span.fas.fa-sign-out-alt(style="font-size: 16px")
                 else
                     li.nav-item
-                        a.nav-link(href='/users/login') Login
+                        a.nav-link(href='/users/login') Login 
+                            span.fas.fa-sign-in-alt(style="font-size: 16px")
         .container
             br
             != messages('message', locals)
