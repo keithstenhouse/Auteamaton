@@ -160,57 +160,57 @@ messaging.get('/request_squad_availability', ensureAuthenticated, async (req, re
 
         squadplayers = await getSquadPlayers(team);
 
-        if (match == undefined) {
+        if (match == undefined || match.date == '') {
             req.flash('danger', 'There are no upcoming ' + req.user.captainof + ' matches scheduled.  Please update the Matches section.');
         } else if (squadplayers.length <= 0) {
             req.flash('danger', 'There are no ' + req.user.captainof + ' squad players.  Please update the Squad Players section.');
         } else {
             req.flash('success', 'SMS messages are being sent to the ' + req.user.captainof + ' squad to request player availability, replies will go direct to your mobile.');
-        }
 
-        for (let i in squadplayers) {
+            for (let i in squadplayers) {
 
-            player = await getPlayer(squadplayers[i].player);
+                player = await getPlayer(squadplayers[i].player);
 
-            message = await getMessage(team, match, player);
+                message = await getMessage(team, match, player);
 
-            if (message == undefined) {
-                const from = req.user.mobile;
-                const to = player.mobile;
-                const venue = match.venue.toLowerCase();
+                if (message == undefined) {
+                    const from = req.user.mobile;
+                    const to = player.mobile;
+                    const venue = match.venue.toLowerCase();
 
-                const msg = `${player.greeting}, are you available for a ${req.user.captainof} ${venue} match on ${match.day} ${match.date} at ${match.time} vs ` +
-                            `${match.opposition}.  I'll confirm selection ASAP.`
+                    const msg = `${player.greeting}, are you available for a ${req.user.captainof} ${venue} match on ${match.day} ${match.date} at ${match.time} vs ` +
+                                `${match.opposition}.  I'll confirm selection ASAP.`
 
-                req.flash('success', 'SMS message has been sent to ' + player.name);
+                    req.flash('success', 'SMS message has been sent to ' + player.name);
 
-                // nexmo.message.sendSms(from, to, msg, { type: 'unicode' }, (err, responseData) => {
-                //     if (err) {
-                //         console.log("SMS Error: " + err);
-                //     } else {
-                //         console.log("SMS Success: " + responseData);
-                //         console.log("SMS Success: Remaining Balance - " + responseData.messages[0]["remaining-balance"]);
-                //     }
-                // });
+                    // nexmo.message.sendSms(from, to, msg, { type: 'unicode' }, (err, responseData) => {
+                    //     if (err) {
+                    //         console.log("SMS Error: " + err);
+                    //     } else {
+                    //         console.log("SMS Success: " + responseData);
+                    //         console.log("SMS Success: Remaining Balance - " + responseData.messages[0]["remaining-balance"]);
+                    //     }
+                    // });
 
-                const datesent = dateformat(today, 'dS mmmm yyyy');
-                const timesent = dateformat(today, 'HH:MM') + 'hrs';
+                    const datesent = dateformat(today, 'dS mmmm yyyy');
+                    const timesent = dateformat(today, 'HH:MM') + 'hrs';
 
-                // Store recipients in a DB so they don't receive multiple messages?
-                let newMessage = new messagesModel({
-                    team: req.user.captainof,
-                    date: match.date,
-                    time: match.time,
-                    player: player.name,
-                    datesent: datesent,
-                    timesent: timesent
-                });
+                    // Store recipients in a DB so they don't receive multiple messages?
+                    let newMessage = new messagesModel({
+                        team: req.user.captainof,
+                        date: match.date,
+                        time: match.time,
+                        player: player.name,
+                        datesent: datesent,
+                        timesent: timesent
+                    });
 
-                newMessage.save(err => {
-                    console.log('Failed to save the message in the messages model');
-                });
-            } else {
-                req.flash('danger', 'A previous SMS message has been sent to ' + player.name + ' - ignoring!');
+                    newMessage.save(err => {
+                        console.log('Failed to save the message in the messages model');
+                    });
+                } else {
+                    req.flash('danger', 'A previous SMS message has been sent to ' + player.name + ' - ignoring!');
+                }
             }
         }
         

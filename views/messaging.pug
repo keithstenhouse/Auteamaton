@@ -26,19 +26,20 @@ block content
                     td= match.time
                     td= match.venue
                     td= match.opposition
-        br
-        h3 Squad Players
-        table.table.table-bordered
-            thead
-                tr
-                    th Team
-                    th Player
-                    th Availability Requested
-            tbody
-                each squadplayer in squadplayers
-                    tr
-                        td= squadplayer.team
-                        td #{squadplayer.player}
-                        td #{squadplayer.datesent} #{squadplayer.timesent}
     else
-        h3 No upcoming matches in the fixture list
+        h3 Next Match
+        h4 No upcoming matches in the fixture list
+    br
+    h3 Squad Players
+    table.table.table-bordered
+        thead
+            tr
+                th Team
+                th Player
+                th Availability Requested
+        tbody
+            each squadplayer in squadplayers
+                tr
+                    td= squadplayer.team
+                    td #{squadplayer.player}
+                    td #{squadplayer.datesent} #{squadplayer.timesent}
