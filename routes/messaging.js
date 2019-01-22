@@ -149,8 +149,6 @@ async function getMessage(team, match, player) {
 
 messaging.get('/request_squad_availability', ensureAuthenticated, async (req, res) => {
     if (req.user) {
-        req.flash('success', 'SMS messages are being sent to the ' + req.user.captainof + ' squad to request player availability, replies will go direct to your mobile.');
-
         today = new Date();
         rawdate = dateformat(today, 'yyyy-mm-dd');
 
@@ -161,6 +159,14 @@ messaging.get('/request_squad_availability', ensureAuthenticated, async (req, re
         match = await getMatch(team, rawdate);
 
         squadplayers = await getSquadPlayers(team);
+
+        if (match == undefined || squadplayers.length <= 0) {
+            req.flash('danger', 'There are no upcoming ' + req.user.captainof + ' matches scheduled.  Please update the Matches section.');
+        } else if (match == undefined || squadplayers.length <= 0) {
+            req.flash('danger', 'There are no ' + req.user.captainof + ' squad players.  Please update the Squad Players section.');
+        } else {
+            req.flash('success', 'SMS messages are being sent to the ' + req.user.captainof + ' squad to request player availability, replies will go direct to your mobile.');
+        }
 
         for (let i in squadplayers) {
 
