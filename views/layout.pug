@@ -42,6 +42,9 @@ html
             if errors
                 each error, i in errors
                     div(class="alert alert-danger") #{error.msg}
+            if successes
+                each success, i in successes
+                    div(class="alert alert-danger") #{success}
             br
             hr
             block content

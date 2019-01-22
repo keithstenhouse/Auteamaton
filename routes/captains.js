@@ -10,19 +10,15 @@ var captains = express.Router();
 //
 captains.get('/', ensureAuthenticated, (req, res) => {
     if (req.user.captainof == 'admin') {
-        teamsModel.find({}, (err, teams) => {
-            if (err) {
-                throw err;
-            }
-
-            usersModel.find({}, (err, users) => {
-                if (err) {
-                    throw err;
-                }
-
+        teamsModel.find({}).sort('name').exec().then(teams => {
+            usersModel.find({}).sort('captainof').exec().then(users => {
                 res.render('captains', {teams: teams, captains: users});
-            }).sort('captainof');
-        }).sort('name');
+            }).catch(err => {
+                throw err;
+            });
+        }).catch(err => {
+            throw err;
+        });
     } else {
         req.flash('danger', 'Insufficient privileges');
         res.redirect('/');

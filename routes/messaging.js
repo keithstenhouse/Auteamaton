@@ -35,11 +35,7 @@ messaging.get('/', ensureAuthenticated, (req, res) => {
             }
         };
     
-        matchesModel.findOne(matchquery, (err, match) => {
-            if (err) {
-                throw err;
-            }
-
+        matchesModel.findOne(matchquery).sort('datetime').exec().then(match => {
             if (match == undefined) {
                 match = {};
                 
@@ -53,17 +49,9 @@ messaging.get('/', ensureAuthenticated, (req, res) => {
 
             let squadplayerquery = { team: team };
 
-            squadplayersModel.find(squadplayerquery, (err, squadplayers) => {
-                if (err) {
-                    throw err;
-                }
-
+            squadplayersModel.find(squadplayerquery).sort('player').exec().then(squadplayers => {
                 let messagesquery = { team: team, date: match.date, time: match.time };
-                messagesModel.find(messagesquery, (err, messages) => {
-                    if (err) {
-                        throw err;
-                    }
-
+                messagesModel.find(messagesquery).exec().then(messages => {
                     if (messages.length > 0) {
                         for (let i in messages) {
                             for (let j in squadplayers) {
@@ -76,9 +64,15 @@ messaging.get('/', ensureAuthenticated, (req, res) => {
                     }
                     
                     res.render('messaging', {match: match, squadplayers: squadplayers});
+                }).catch(err => {
+                    throw err;
                 });
-            }).sort('player');
-        }).sort('datetime');
+            }).catch(err => {
+                throw err;
+            });
+        }).catch(err => {
+            throw err;
+        });
     } else {
         res.render('login')
     }
@@ -88,24 +82,17 @@ messaging.get('/', ensureAuthenticated, (req, res) => {
 //
 // Messaging Request Squad Availability Route
 //
-messaging.get('/request_squad_availability', ensureAuthenticated, (req, res) => {
-    if (req.user) {
-        today = new Date();
-        rawdate = dateformat(today, 'yyyy-mm-dd');
 
-        let team = req.user.captainof;
-        let matchquery = {
-            team: team,
-            rawdate: {
-                "$gte": rawdate
-            }
-        };
+async function getMatch(team, rawdate) {
+    let matchquery = {
+        team: team,
+        rawdate: {
+            "$gte": rawdate
+        }
+    };
 
-        matchesModel.findOne(matchquery, (err, match) => {
-            if (err) {
-                throw err;
-            }
-
+    return new Promise((resolve, reject) => {
+        matchesModel.findOne(matchquery).sort('rawdate').exec().then(match => {
             if (match == undefined) {
                 match = {};
 
@@ -117,74 +104,111 @@ messaging.get('/request_squad_availability', ensureAuthenticated, (req, res) => 
                 match.opposition = ''
             }
 
-            let squadplayerquery = { team: team };
+            resolve(match);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
 
-            squadplayersModel.find(squadplayerquery, (err, squadplayers) => {
-                if (err) {
-                    throw err;
-                }
+async function getSquadPlayers(team) {
+    let squadplayerquery = { team: team };
 
-                for (let i in squadplayers) {
-                    let playersquery = {name: squadplayers[i].player};
+    return new Promise((resolve, reject) => {
+        squadplayersModel.find(squadplayerquery).sort('player').exec().then(squadplayers => {
+            resolve(squadplayers);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
 
-                    playersModel.findOne(playersquery, (err, player) => {
-                        if (err) {
-                            throw err;
-                        }
+async function getPlayer(player) {
+    let playersquery = {name: player};
 
-                        // Check if we have sent this message to this squad player already
-                        let messagesquery = { team: team, date: match.date, time: match.time, player: player.name };
-                        messagesModel.findOne(messagesquery, (err, message) => {
-                            if (err) {
-                                throw err;
-                            }
+    return new Promise((resolve, reject) => {
+        playersModel.findOne(playersquery).exec().then(player => {
+            resolve(player);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
 
-                            if (message == undefined) {
-                                const from = req.user.mobile;
-                                const to = player.mobile;
-                                const venue = match.venue.toLowerCase();
+async function getMessage(team, match, player) {
+    let messagesquery = { team: team, date: match.date, time: match.time, player: player.name };
 
-                                const msg = `${player.greeting}, are you available for a ${req.user.captainof} ${venue} match on ${match.day} ${match.date} at ${match.time} vs ` +
-                                            `${match.opposition}.  I'll confirm selection ASAP.`
+    return new Promise((resolve, reject) => {
+        messagesModel.findOne(messagesquery).exec().then(message => {
+            resolve(message);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
 
-                                // console.log(`Sending SMS from '${from}' to '${to}': body '${msg}'`)
+messaging.get('/request_squad_availability', ensureAuthenticated, async (req, res) => {
+    if (req.user) {
+        req.flash('success', 'SMS messages are being sent to the ' + req.user.captainof + ' squad to request player availability, replies will go direct to your mobile.');
 
-                                // nexmo.message.sendSms(from, to, msg, { type: 'unicode' }, (err, responseData) => {
-                                //     if (err) {
-                                //         console.log("SMS Error: " + err);
-                                //     } else {
-                                //         console.log("SMS Success: " + responseData);
-                                //         console.log("SMS Success: Remaining Balance - " + responseData.messages[0]["remaining-balance"]);
-                                //     }
-                                // });
+        today = new Date();
+        rawdate = dateformat(today, 'yyyy-mm-dd');
 
-                                const datesent = dateformat(today, 'dS mmmm yyyy');
-                                const timesent = dateformat(today, 'HH:MM') + 'hrs';
+        let match, squadplayers, player, message;
 
-                                // Store recipients in a DB so they don't receive multiple messages?
-                                let newMessage = new messagesModel({
-                                    team: req.user.captainof,
-                                    date: match.date,
-                                    time: match.time,
-                                    player: player.name,
-                                    datesent: datesent,
-                                    timesent: timesent
-                                });
-                        
-                                newMessage.save(err => {
-                                    if (err) {
-                                        console.log('Failed to save the message in the messages model');
-                                    }
-                                });
-                            }
-                        });
-                    });
-                }
-            }).sort('player');
+        let team = req.user.captainof;
 
-            req.flash('success', 'SMS messages have been sent to the ' + req.user.captainof + ' squad to request player availability, replies will go direct to your mobile.');
-            res.redirect('/');
-        }).sort('datetime');
+        match = await getMatch(team, rawdate);
+
+        squadplayers = await getSquadPlayers(team);
+
+        for (let i in squadplayers) {
+
+            player = await getPlayer(squadplayers[i].player);
+
+            message = await getMessage(team, match, player);
+
+            if (message == undefined) {
+                const from = req.user.mobile;
+                const to = player.mobile;
+                const venue = match.venue.toLowerCase();
+
+                const msg = `${player.greeting}, are you available for a ${req.user.captainof} ${venue} match on ${match.day} ${match.date} at ${match.time} vs ` +
+                            `${match.opposition}.  I'll confirm selection ASAP.`
+
+                req.flash('success', 'SMS message has been sent to ' + player.name);
+
+                // nexmo.message.sendSms(from, to, msg, { type: 'unicode' }, (err, responseData) => {
+                //     if (err) {
+                //         console.log("SMS Error: " + err);
+                //     } else {
+                //         console.log("SMS Success: " + responseData);
+                //         console.log("SMS Success: Remaining Balance - " + responseData.messages[0]["remaining-balance"]);
+                //     }
+                // });
+
+                const datesent = dateformat(today, 'dS mmmm yyyy');
+                const timesent = dateformat(today, 'HH:MM') + 'hrs';
+
+                // Store recipients in a DB so they don't receive multiple messages?
+                let newMessage = new messagesModel({
+                    team: req.user.captainof,
+                    date: match.date,
+                    time: match.time,
+                    player: player.name,
+                    datesent: datesent,
+                    timesent: timesent
+                });
+
+                newMessage.save(err => {
+                    console.log('Failed to save the message in the messages model');
+                });
+            } else {
+                req.flash('danger', 'A previous SMS message has been sent to ' + player.name + ' - ignoring!');
+            }
+        }
+        
+        res.redirect('/messaging');
     } else {
         res.render('login')
     }
